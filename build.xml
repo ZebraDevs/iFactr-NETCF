@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Run">
+    <Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets"/>
+    <PropertyGroup>
+        <Framework>./iFactr.Compact</Framework>
+    </PropertyGroup>
+
+    <Target Name="Run">
+        <!--<CallTarget Targets="GetLatest" />-->
+        <CallTarget Targets="Compile" />
+        <CallTarget Targets="CopyToRoot" />
+    </Target>
+
+    <Target Name="GetLatest">
+        <GitClient Command="pull" />
+    </Target>
+
+    <Target Name="Clean">
+        <ItemGroup>
+            <iFactrClean Include="$(Framework)/bin/**" />
+            <iFactrClean Include="$(Framework)/obj/**" />
+        </ItemGroup>
+        <Delete Files="@(iFactrClean)" />
+    </Target>
+
+    <Target Name="Compile" DependsOnTargets="Clean">
+        <MSBuild Projects="$(Framework)/iFactr.Compact.csproj" />
+        <GitClient Condition="$(Ext) == ''" Command="checkout" Arguments="-- &quot;$(Framework)/Properties/AssemblyInfo.cs&quot;"/>
+    </Target>
+
+    <Target Name="CopyToRoot">
+        <ItemGroup>
+            <iFactrLib Include="$(Framework)/bin/$(Configuration)/iFactr.Compact.dll" />
+            <iFactLib Include="$(Framework)/bin/$(Configuration)/iFactr.Compact.pdb" />
+        </ItemGroup>
+        <Copy SourceFiles="@(iFactrLib)" DestinationFolder="Distribution" />
+    </Target>
+</Project>
