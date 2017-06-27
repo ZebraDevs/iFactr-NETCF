@@ -33,7 +33,6 @@ iFactr uses a **Model-View-Controller** design pattern and navigation modeled af
 StackOverflow is monitored. Post questions using the #iFactr tag.
 
 
-iFactr is open source with a [public repository][iFactr] on GitHub.
 
 ### Installation
 
