@@ -9,6 +9,7 @@
         <!--<CallTarget Targets="GetLatest" />-->
         <CallTarget Targets="Compile" />
         <CallTarget Targets="CopyToRoot" />
+        <CallTarget Targets="Verify" />
     </Target>
 
     <Target Name="GetLatest">
@@ -64,7 +65,7 @@
         <Copy SourceFiles="@(iFactrLib)" DestinationFolder="Distribution" />
     </Target>
 
-    <Target Name="Verify" Condition="$(SignAssembly)">
+    <Target Name="Verify" Condition="$(SignAssembly) == true">
         <ItemGroup>
             <iFactrVerify Include="Distribution/iFactr.Compact.dll" />
         </ItemGroup>
