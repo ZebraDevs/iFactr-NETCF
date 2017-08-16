@@ -6,14 +6,13 @@
     </PropertyGroup>
 
     <Target Name="Run">
-        <!--<CallTarget Targets="GetLatest" />-->
         <CallTarget Targets="Compile" />
         <CallTarget Targets="CopyToRoot" />
         <CallTarget Targets="Verify" />
     </Target>
 
-    <Target Name="GetLatest">
-        <GitClient Command="pull" />
+    <Target Name="SubtreeUpdate">
+        <GitClient Command="subtree" Arguments="pull --prefix=iFactr.UI https://github.com/Zebra/iFactr-UI.git master --squash"/>
     </Target>
 
     <Target Name="Clean">
