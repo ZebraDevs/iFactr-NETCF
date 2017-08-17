@@ -53,12 +53,12 @@
     <Reference Include="Microsoft.Windowsce.Forms" />
     <Reference Include="MonoCross.CF, Version=2.1.0.309, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\iFactr.UI\Distribution\MonoCross.CF.dll</HintPath>
+      <HintPath>..\iFactr.UI\MonoCross\Distribution\MonoCross.CF.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="Newtonsoft.Json.CF, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\iFactr.UI\Distribution\Newtonsoft.Json.CF.dll</HintPath>
+      <HintPath>..\iFactr.UI\MonoCross\Distribution\Newtonsoft.Json.CF.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
