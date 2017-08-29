@@ -59,7 +59,7 @@
     <Target Name="CopyToRoot">
         <ItemGroup>
             <iFactrLib Include="$(Framework)/bin/$(Configuration)/iFactr.Compact.dll" />
-            <iFactLib Include="$(Framework)/bin/$(Configuration)/iFactr.Compact.pdb" />
+            <iFactrLib Include="$(Framework)/bin/$(Configuration)/iFactr.Compact.pdb" />
         </ItemGroup>
         <Copy SourceFiles="@(iFactrLib)" DestinationFolder="Distribution" />
     </Target>
