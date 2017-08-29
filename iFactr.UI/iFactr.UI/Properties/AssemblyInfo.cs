@@ -5,11 +5,11 @@ using System.Resources;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("iFactr.UI")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("The iFactr UI API library")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Zebra Technologies Corporation")]
 [assembly: AssemblyProduct("iFactr.UI")]
-[assembly: AssemblyCopyright("Copyright © 2016")]
+[assembly: AssemblyCopyright("Copyright © 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -21,7 +21,8 @@ using System.Resources;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("3.6.1.42")]
+[assembly: AssemblyVersion("4.0.0.42")]
+[assembly: AssemblyInformationalVersion("Branch - master (Hash: Working Tree)")]
 
 #if !NETCF
 [assembly: NeutralResourcesLanguage("en-US")]
