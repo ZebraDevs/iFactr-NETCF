@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Run">
-    <Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets"/>
     <PropertyGroup>
         <Framework>./iFactr.Compact</Framework>
     </PropertyGroup>
 
     <Target Name="Run">
         <CallTarget Targets="Compile" />
-        <CallTarget Targets="CopyToRoot" />
-        <CallTarget Targets="Verify" />
+        <CallTarget Targets="Verify" Condition="$(SignAssembly) == true" />
     </Target>
 
     <Target Name="SubtreeUpdate">
-        <GitClient Command="subtree" Arguments="pull --prefix=iFactr.UI https://github.com/Zebra/iFactr-UI.git NetStandard --squash"/>
+        <Exec Command="git subtree pull --prefix=iFactr.UI https://github.com/Zebra/iFactr-UI.git NetStandard --squash"/>
     </Target>
 
     <Target Name="Clean">
@@ -40,31 +38,13 @@
         <Delete Files="$(Framework)/branch.txt" />
         <Delete Files="$(Framework)/commithash.txt" />
         <Message Text="Repository Revision Num: $(BuildRev)" />
-        <FileUpdate Files="$(Framework)/Properties/AssemblyInfo.cs"
-                Regex="(\d+)\.(\d+)\.(\d+)\.(\d+)"
-                ReplacementText="$1.$2.$3.$(BuildRev)" />
-        <FileUpdate Files="$(Framework)/Properties/AssemblyInfo.cs"
-                Regex="(AssemblyCopyright\(\D*)\s\d{4}\s(.*\))"
-                ReplacementText="$1 $([System.DateTime]::Now.ToString(`yyyy`)) $2" />
-        <FileUpdate Files="$(Framework)/Properties/AssemblyInfo.cs"
-                Regex="(AssemblyInformationalVersion\(\D*-)\s\w*\s(\D*:)\D*(\)&quot;)"
-                ReplacementText="$1 $(Branch) $2 $(CommitHash)$3" />
     </Target>
 
     <Target Name="Compile" DependsOnTargets="PreBuild">
         <MSBuild Projects="$(Framework)/iFactr.Compact.csproj" />
-        <GitClient Command="checkout" Arguments="-- &quot;$(Framework)/Properties/AssemblyInfo.cs&quot;"/>
     </Target>
 
-    <Target Name="CopyToRoot">
-        <ItemGroup>
-            <iFactrLib Include="$(Framework)/bin/$(Configuration)/iFactr.Compact.dll" />
-            <iFactrLib Include="$(Framework)/bin/$(Configuration)/iFactr.Compact.pdb" />
-        </ItemGroup>
-        <Copy SourceFiles="@(iFactrLib)" DestinationFolder="Distribution" />
-    </Target>
-
-    <Target Name="Verify" Condition="$(SignAssembly) == true">
+    <Target Name="Verify">
         <ItemGroup>
             <iFactrVerify Include="Distribution/iFactr.Compact.dll" />
         </ItemGroup>
