@@ -12,7 +12,7 @@
     </Target>
 
     <Target Name="SubtreeUpdate">
-        <GitClient Command="subtree" Arguments="pull --prefix=iFactr.UI https://github.com/Zebra/iFactr-UI.git master --squash"/>
+        <GitClient Command="subtree" Arguments="pull --prefix=iFactr.UI https://github.com/Zebra/iFactr-UI.git NetStandard --squash"/>
     </Target>
 
     <Target Name="Clean">
