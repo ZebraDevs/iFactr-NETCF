@@ -20,27 +20,8 @@
         </ItemGroup>
         <Delete Files="@(iFactrClean)" />
     </Target>
-	
-    <Target Name="PreBuild" DependsOnTargets="Clean" >
-        <Exec Condition=" '$(BuildRev)'==''" WorkingDirectory="$(Framework)" Command="git rev-list --count HEAD > buildrev.txt" />
-        <Exec WorkingDirectory="$(Framework)" Command="git rev-parse --abbrev-ref HEAD > branch.txt" />
-        <Exec WorkingDirectory="$(Framework)" Command="git rev-parse --short HEAD > commithash.txt" />
-        <ReadLinesFromFile Condition=" '$(BuildRev)'==''" File="$(Framework)/buildrev.txt">
-            <Output TaskParameter="Lines" PropertyName="BuildRev" />
-        </ReadLinesFromFile>
-        <ReadLinesFromFile File="$(Framework)/branch.txt">
-            <Output TaskParameter="Lines" PropertyName="Branch" />
-        </ReadLinesFromFile>
-        <ReadLinesFromFile File="$(Framework)/commithash.txt">
-            <Output TaskParameter="Lines" PropertyName="CommitHash" />
-        </ReadLinesFromFile>
-        <Delete Files="$(Framework)/buildrev.txt" />
-        <Delete Files="$(Framework)/branch.txt" />
-        <Delete Files="$(Framework)/commithash.txt" />
-        <Message Text="Repository Revision Num: $(BuildRev)" />
-    </Target>
 
-    <Target Name="Compile" DependsOnTargets="PreBuild">
+    <Target Name="Compile" DependsOnTargets="Clean">
         <MSBuild Projects="$(Framework)/iFactr.Compact.csproj" />
     </Target>
 
