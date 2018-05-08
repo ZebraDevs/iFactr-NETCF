@@ -10,7 +10,11 @@
     </Target>
 
     <Target Name="SubtreeUpdate">
-        <Exec Command="git subtree pull --prefix=iFactr.UI https://github.com/Zebra/iFactr-UI.git NetStandard --squash"/>
+        <Exec Command="git rm -r iFactr.UI"/>
+        <Exec Command="git commit -m &quot;Removed iFactr.UI Subtree with intention of readding it (subtree pull workaround)&quot;" />
+        <Delete Files="iFactr.UI"/>
+        <!-- TODO: Remove previous lines in task and use subtree pull when next major Git version is released -->
+        <Exec Command="git subtree add --prefix=iFactr.UI https://github.com/Zebra/iFactr-UI.git master --squash"/>
     </Target>
 
     <Target Name="Clean">
