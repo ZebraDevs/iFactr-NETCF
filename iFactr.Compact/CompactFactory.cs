@@ -139,7 +139,7 @@ namespace iFactr.Compact
 
         #endregion
 
-        public new static void Navigate(Link location)
+        public static void Navigate(Link location)
         {
             Instance.Thread.ExecuteOnMainThread(() =>
             {
@@ -147,7 +147,7 @@ namespace iFactr.Compact
             });
         }
 
-        public new static void Navigate(Link location, IMXView fromView)
+        public static void Navigate(Link location, IMXView fromView)
         {
             if (location == null || NavigatedAddresses.Contains(location.Address))
             {
@@ -296,7 +296,7 @@ namespace iFactr.Compact
             {
                 if (PaneManager.Instance.ShouldNavigate(link, pane, NavigationType.Forward))
                 {
-                    base.ShouldNavigate(link, pane, handler);
+                    handler.Invoke();
                 }
             }));
         }

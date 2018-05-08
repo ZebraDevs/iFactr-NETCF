@@ -10,7 +10,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Zebra Technologies Corporation")]
 [assembly: AssemblyProduct("iFactr.Compact")]
-[assembly: AssemblyCopyright("Copyright © 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,5 +31,7 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyCopyright("Copyright © " +
+"2018")]
 [assembly: AssemblyVersion("6.5.3.42")]
-[assembly: AssemblyInformationalVersion("Branch - master (Hash: Working Tree)")]
+[assembly: AssemblyInformationalVersion("6.5.3.42-master.WorkingTree")]
