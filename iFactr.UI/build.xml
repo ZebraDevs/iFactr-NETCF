@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Run">
+    <PropertyGroup>
+        <Framework>./iFactr.UI</Framework>
+    </PropertyGroup>
+
+    <Target Name="Run">
+        <CallTarget Targets="Compile" />
+        <CallTarget Targets="Verify" Condition="$(SignAssembly) == true"/>
+        <CallTarget Targets="Package" Condition="'$(Ext)' != '.CF'" />
+    </Target>
+
+    <Target Name="SubtreeUpdate">
+        <Exec Command="git rm -r MonoCross"/>
+        <Delete Files="MonoCross"/>
+        <Exec Command="git commit -m &quot;Removed MonoCross Subtree with intention of readding it (subtree pull workaround)&quot;" />
+        <!-- TODO: Remove previous lines in task and use subtree pull when next major Git version is released -->
+        <Exec Command="git subtree add --prefix=MonoCross https://github.com/MonoCross/MonoCross.git master --squash"/>
+    </Target>
+
+    <Target Name="Clean">
+        <ItemGroup>
+            <iFactrClean Include="$(Framework)/bin/**" />
+            <iFactrClean Include="$(Framework)/obj/**" />
+        </ItemGroup>
+        <Delete Files="@(iFactrClean)" />
+    </Target>
+
+    <Target Name="Compile" DependsOnTargets="Clean">
+        <MSBuild Projects="$(Framework)/iFactr.UI$(Ext).csproj" Condition="'$(Ext)' != ''" />
+        <Exec WorkingDirectory="$(Framework)" Command="dotnet build /p:SignAssembly=$(SignAssembly);AssemblyOriginatorKeyFile=$(AssemblyOriginatorKeyFile);Configuration=$(Configuration) iFactr.UI.csproj" Condition="'$(Ext)' == ''" />
+    </Target>
+
+    <Target Name="Verify">
+        <ItemGroup>
+            <iFactrVerify Include="Distribution/iFactr.UI.dll" />
+        </ItemGroup>
+        <Exec Command='"$(SDK40ToolsPath)sn" -q -v %(iFactrVerify.Identity) >> $(Framework)/verify.txt' ContinueOnError="true" />
+        <ReadLinesFromFile File="$(Framework)/verify.txt">
+            <Output TaskParameter="Lines" PropertyName="Verify" />
+        </ReadLinesFromFile>
+        <Delete Files="$(Framework)/verify.txt" />
+        <Error Text="$(Verify)" Condition="'$(Verify)' != ''" />
+    </Target>
+
+    <Target Name="Package">
+      <XmlRead XPath="//dependency/@id" XmlFileName="$(Framework)/iFactr.UI.nuspec">
+        <Output TaskParameter="Value" PropertyName="_Deps" />
+      </XmlRead>
+      <XmlRead XPath="//dependency/@version" XmlFileName="$(Framework)/iFactr.UI.nuspec">
+        <Output TaskParameter="Value" ItemName="Formats" />
+      </XmlRead>
+      <ItemGroup>
+        <_DepPaths Include="$(_Deps.Split(';'))"/>
+        <DepPaths Include="MonoCross/Distribution/%(_DepPaths.Identity).dll"/>
+      </ItemGroup>
+      <GetFileVersion Files="@(DepPaths)" Formats="@(Formats)">
+        <Output TaskParameter="Value" ItemName="Dependencies" />
+      </GetFileVersion>
+      <XmlUpdate XPath="//dependency[@id=&quot;%(Dependencies.Name)&quot;]/@version"
+            XmlFileName="$(Framework)/iFactr.UI.nuspec"
+            Value="%(Version)"/>
+      <GetFileVersion Files="Distribution/iFactr.UI.dll">
+        <Output TaskParameter="Value" ItemName="Assembly" />
+      </GetFileVersion>
+      <Exec Condition="'$(Ext)' == ''" WorkingDirectory="$(Framework)" Command="dotnet pack --include-symbols /p:SignAssembly=$(SignAssembly);AssemblyOriginatorKeyFile=$(AssemblyOriginatorKeyFile);PackageVersion=%(Assembly.Version) -o . -c $(Configuration) iFactr.UI.csproj" />
+      <Exec WorkingDirectory="$(Framework)" Command="git checkout -- iFactr.UI.nuspec" />
+    </Target>
+
+  <UsingTask TaskName="GetFileVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+        <Files ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+        <Formats ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="false" />
+        <Value ParameterType="Microsoft.Build.Framework.ITaskItem[]" Output="true" />
+    </ParameterGroup>
+    <Task>
+        <Using Namespace="System.IO"/>
+        <Using Namespace="System.Diagnostics"/>
+        <Code Type="Fragment" Language="cs">
+<![CDATA[  
+      if (Files.Length > 0)  
+      {  
+        Value = new TaskItem[Files.Length];  
+        for (int i = 0; i < Files.Length; i++)  
+        {
+          ITaskItem item = Files[i];
+          var info = new FileInfo(item.GetMetadata("FullPath"));
+          item = new TaskItem(item.ItemSpec);
+          Value[i] = item;
+          item.SetMetadata("Name", info.Name.Remove(info.Name.Length - info.Extension.Length));
+
+          var version = info.Exists ? FileVersionInfo.GetVersionInfo(info.FullName).FileVersion : null;
+          if (string.IsNullOrEmpty(version))
+          {
+              item.SetMetadata("Version", string.Empty);
+              continue;
+          }
+
+          var format = Formats != null && Formats.Length > 0 ? Formats[i].ItemSpec : null;
+          while (!string.IsNullOrEmpty(format) && format.ToCharArray().Count(c => c =='.') <  version.ToCharArray().Count(c => c =='.'))
+              version = version.Remove(version.LastIndexOf('.'));
+          item.SetMetadata("Version", version);
+        }
+      }
+]]>
+        </Code>
+    </Task>
+  </UsingTask>
+
+  <UsingTask TaskName="XmlRead" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+        <XPath ParameterType="System.String" Required="true" />
+        <XmlFileName ParameterType="System.String" Required="true" />
+        <Value ParameterType="System.String" Output="true" />
+    </ParameterGroup>
+    <Task>
+        <Reference Include="System.Xml" />
+        <Using Namespace="System.Xml"/>
+        <Code Type="Fragment" Language="cs"><![CDATA[
+	var doc = new XmlDocument();
+	doc.Load(XmlFileName);
+	Value = doc.DocumentElement.SelectSingleNode(XPath).Value;
+]]></Code>
+    </Task>
+  </UsingTask>
+
+  <UsingTask TaskName="XmlUpdate" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+        <XPath ParameterType="System.String" Required="true" />
+        <XmlFileName ParameterType="System.String" Required="true" />
+        <Value ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+        <Reference Include="System.Xml" />
+        <Using Namespace="System.Xml"/>
+        <Code Type="Fragment" Language="cs"><![CDATA[
+	var doc = new XmlDocument();
+	doc.Load(XmlFileName);
+	var node = doc.DocumentElement.SelectSingleNode(XPath);
+	node.Value = Value;
+	doc.Save(XmlFileName);
+]]></Code>
+    </Task>
+  </UsingTask>
+</Project>
